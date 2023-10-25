@@ -1,0 +1,101 @@
+body * {
+    margin: 0;
+    padding: 0;
+    }
+
+   
+    .navbar-brand {
+        color: #575757;
+        font-size: 2em;
+        font-family: 'Pacifico', cursive;
+        
+    }    
+    .navbar-text {
+        font-family: sans-serif;
+        font-size: 1em;
+        color: white;
+    }
+
+#welcome {
+    /*height: 90vh;*/
+    font-family: 'Playpen Sans', cursive;
+    color: #575757;
+}
+
+
+.footer-container{
+    /*height: 5vh;*/
+    color: white;
+    background-color: #8EACCD;
+    padding: 1em;
+}
+
+
+form button {
+    border: none;
+    background-color: white;
+    /*padding: 0.5em 0.5em;*/
+}
+
+div button {
+    border: none;
+    background-color: white;
+    /*padding: 0.5em;*/
+}
+
+
+.card-header {
+    background-color: white;
+    
+}
+
+.card {
+    color: #737373;
+    width: 300px;
+    
+}
+
+p, input {
+    color: #737373;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: #d9d9d9;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    
+}
+
+.gradient-background {
+    background: linear-gradient(300deg, #8EACCD,#D7E5CA, #F9F3CC);
+    background-size: 180% 180%;
+    animation: gradient-animation 18s ease infinite;
+  }
+  
+  @keyframes gradient-animation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  #welcome h2 {
+    width: 300px;
+  }
+
+  .entertaskbtn {
+    padding-left: 1em;
+  }

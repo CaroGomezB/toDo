@@ -1,0 +1,159 @@
+<%- include('header.ejs') %>
+
+  <!--Welcome Section-->
+
+  <!--Creé una variable "welcome" que se pasa de falso a true cuando el documento se carga, en ese momento, se muestra la pantalla de inicio-->
+
+  <% if (welcome) { %>
+    <%- include('welcome.ejs')%>
+      <% } else { %>
+        <!--Cuando se da click en el botón para crear una nueva lista, el valor "welcome" pasa a "false" y "newList" pasa a "true", para preguntar por el nombre de la lista-->
+        <section id="welcome" class="d-flex justify-content-center align-items-center">
+
+          <% if (newList) { %>
+
+            <!--Una vez se ingresa la pregunta y se da click en el botón de "crear", se genera un método POST que crea un objeto añadido a "listsArr" usando el 
+            constructor de objetos declarado en el archivo index.js, y le asigna la propiedad "name" para incluir el nombre asignado por el usuario. es decir queda listsArr= [List{name, tasks}]-->
+
+            <div class="mb-3 row row-cols-1 d-flex align-items-center justify-content-center">
+              <form action="/submit" method="POST" class="row row-cols-2 align-items-center justify-content-center">
+                <input type="text" class="form-control text-center col-10" name="userInput" placeholder="Type here the name of your list"
+                  aria-label="Nombre de tu lista" aria-describedby="button-addon2" style="width: 300px">
+                <button class="btn btn-outline-secondary mt-3 align-sel-center col-2" type="submit" id="button-addon2">Add</button>
+              </form>
+            </div>
+            <!--Una vez creado el objeto Lista con la propiedad "name", se envia un "response" a través del método donde se envía actualizada la lista "listsArr" y demás variables requeridas.-->
+            <% } %>
+
+              <% if (typeof listsArr !=="undefined" && !newList) {%>
+
+                <!--Se ejecuta este if solo si ya hay objetos para la lista listsArr y se verifica que la variable "newList" esté en "false", 
+            lo cual pasa cuando el nombre es definido y el objeto es añadido a la lista.-->
+
+                <div class="container row row-cols-md-4 row-cols-sm-3 row-cols-xs-2 d-flex justify-content-center gap-3">
+                  <% for (let j=0; j < listsArr.length; j++) { %>
+                    <!--Este for itera por los objetos que hay en listsArr, y por cada uno de ellos crea las líneas siguientes que se tratan de un elemento Div de clase "card" usando Bootstrap.
+                Esta "card" además tiene un botón "x" que redirige hacia la acción "delete" usando el mismo método POST, cuando esta acción es llamada, dando click en el botón, con la información
+              de "name" y "value" traídas de forma oculta con el elemento input type "hidden", paso esta información en el "request" para saber a qué objeto corresponden el elemento que pide eliminar.
+            en este caso, nos referimos al objeto con la letra "j", que es la que se itera en la lista de objetos de listsArr.-->
+                    <div class="card">
+                      <div class="card-header">
+                        <div class="row row-cols-2 d-flex align-items-center justify-content-center">
+                          <h3 class="col-8 text-end">
+                            <%=listsArr[j].name%>
+                          </h3>
+                          <div class="col-4 text-end d-flex align-items-center">
+                            <form action="/delete" method="POST">
+                              <input type="hidden" name="list" value="<%=j%>">
+                              <button type="submit"><img src="/images/yellow-x-re.png" alt="" height="20em"></button>
+                            </form>
+                          </div>
+
+                        </div>
+                      </div>
+                      <ul class="list-group list-group-flush">
+                        <!--Para cada objeto lista, se pueden crear tareas, que se crean a través el botón que está en la parte inferior de cuando se termina de iterar cada objeto lista de la lista listsArr.
+                    Cuando se crean las tareas, estas se agregan a la lista que hace parte de la propiedad "tasks" dentro del objeto lista. Ejemplo: listsArr[List{name: "Trabajo", tasks: ["organizar", "revisar", "etc."]}]
+                  En este ejemplo vemos que el primer objeto con index "0", tiene en la propiedad "name" un valor de "Trabajo" el cual se usa como nombre de la lista, y en la propiedad "tasks" tenemos una lista que contiene
+                todas las tareas que se han agregado para ese objeto lista.-->
+
+                        <% for (let i=0; i < listsArr[j].tasks.length; i++) {%>
+                          <!--Con este for iteramos por cada una de las tareas que agregaron al objeto lista en la propiedad "tasks".
+                      De igual forma, como con la lista principal, se agrega el botón de eliminar que tiene inputs ocultos para pasar la información de la tarea que se quiere eliminar y la lista a la que pertenece
+                    Cuando se da click en este botón, se ejecuta la acción "deleteT" a través del método "POST".-->
+
+                          <li class="list-group-item">
+                            <form class="input-group align-items-center" action="/deleteT" method="POST">
+
+                              <div class="input-group-text">
+                                <input class="form-check-input mt-0 checkbox" type="checkbox"
+                                  data-target="<%= listsArr[j].tasks[i] %>" name="checkbox" value="false"
+                                  aria-label="Checkbox for following text input">
+                              </div>
+                             
+                                <p class="card-text mx-3 text-start" id="<%= listsArr[j].tasks[i] %>">
+                                  <%= listsArr[j].tasks[i] %>                                  
+                                </p>
+                                <input type="hidden" name="list" value="<%=j%>">
+                                <input type="hidden" name="task" value="<%=i%>">
+                                <button type="submit"><img src="/images/yellow-x-re.png" alt="" height="15em"></button>
+                            </form>
+                          </li>
+                          <% } %>
+
+                            <!--Para poder habilitar un espacio de input antes de la creación de una tarea, creé una lista transitoria que le llamé "tasksList", en ella, cada que se da click en el botón de crear tarea
+                      la interfaz muestra un espacio habilitado para ingresar texto usando el elemento input de tipo "text", y así mismo, mostrando un botón que ejecuta la acción "taskname" por el método POST
+                    y toma el texto ingresado para añadirla a las tareas del objeto lista y seguidamente, elimina el registro transitorio creado en "tasksList", después se envía como response
+                  el nuevo listsArr actualizado con la lista, pero ya no mostrándose como input, sino como un elemento <p> el cual no se puede ya editar. También se envía 
+                    en el response la tasksList actualizada sin el registro transitorio. Éste registro transitorio también es útil para no añadir tareas al objeto en blanco, y se hace un if en el método para validar
+                  que si no se ha asignado un nombre, no se crea una nueva tarea.-->
+                            <% for (let k=0; k < tasksList.length; k++) {%>
+                              <% if (tasksList[k]==j) { %>
+                                <li class="list-group-item">
+                                  <form class="input-group" action="/taskname" method="POST">
+
+                                    <div class="input-group-text">
+                                      <input class="form-check-input mt-0" type="checkbox" value=""
+                                        aria-label="Checkbox for following text input">
+                                    </div>
+                                    <input type="hidden" name="list" value="<%=j%>">
+                                    <input type="text" name="taskname" class="form-control"
+                                      aria-label="Text input with checkbox">
+                                    <button class="entertaskbtn" type="submit"><svg xmlns="http://www.w3.org/2000/svg" height="1em"
+                                        viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                        <style>
+                                          svg {
+                                            fill: #9ec7ab
+                                          }
+                                        </style>
+                                        <path
+                                          d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+                                      </svg></button>
+
+                                  </form>
+                                </li>
+                                <% } %>
+                                  <% } %>
+                      </ul>
+
+                      <!--Este botón está siempre en la parte final de cada lista, y ejecuta la tarea "task" que agrega elementos a la lista transitoria "tasksList" mientras se les asigna un texto que luego se pasa
+                a listsArr.tasks-->
+                      <form class="text-center" action="/task" method="POST">
+                        <input type="hidden" name="list" value="<%=j%>">
+                        <button type="submit" id="addTask<%=j%>" class="addTask p-3">
+                          <img src="/images/green-add-re.png" alt="" height="50em">
+                        </button>
+                      </form>
+                    </div>
+                    <% } %>
+                </div>
+
+                <% } %>
+
+                  <!--Este es el botón para añadir las listas, que se muestra siempre y cuando la variable "newList" tenga como valor "false", pues cuando es "true" es porque 
+          se dió click al botón y se está mostrando la ventana que pregunta el nombre de la lista, por lo que no se permite dar de nuevo al botón hasta que no se asigne
+          un nombre a la lista que se pretende crear.
+        -->
+                  <% if (!newList) { %>
+                    <form action="/" method="POST" id="btnAdd">
+                      <button type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="3em"
+                          viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                          <style>
+                            svg {
+                              fill: #8EACCD
+                            }
+                          </style>
+                          <path
+                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z" />
+                        </svg>
+                      </button>
+                    </form>
+                    <% } %>
+
+        </section>
+        <% } %>
+
+
+
+          <%- include('footer.ejs') %>
